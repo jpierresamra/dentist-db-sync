@@ -1,0 +1,5 @@
+docker build -t dentist-service-customer:latest D:/workspace-dentist/dentist-service-customer
+-v D:\workspace-dentist\docker-logs:/logs
+
+docker run -d -p 9088:9088 --network dentist-network -e SPRING_PROFILES_ACTIVE=localdocker -e DISCOVERY_PORT=8761 -e DISCOVERY_IP=dentist-discover-service -e MICROSERVICE_IP=dentist-service-customer -e MICROSERVICE_PORT=9088 -v D:\workspace-dentist\docker-logs:/logs --name dentist-service-customer dentist-service-customer:latest
+docker run -d -p 9188:9188 --network dentist-network -e SPRING_PROFILES_ACTIVE=localdocker -e DISCOVERY_PORT=8761 -e DISCOVERY_IP=dentist-discover-service -e MICROSERVICE_IP=dentist-service-customer-2 -e MICROSERVICE_PORT=9188 -v D:\workspace-dentist\docker-logs-2:/logs --name dentist-service-customer-2 dentist-service-customer:latest
