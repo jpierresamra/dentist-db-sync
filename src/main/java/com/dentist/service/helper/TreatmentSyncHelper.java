@@ -211,6 +211,7 @@ public class TreatmentSyncHelper {
                         existingLocalTreatment.setDescription(mergedTreatment.getDescription());
                         existingLocalTreatment.setFee(mergedTreatment.getFee());
                         existingLocalTreatment.setOperateDate(mergedTreatment.getOperateDate());
+                        existingLocalTreatment.setOperationId(mergedTreatment.getOperationId());
                         existingLocalTreatment.setStatus(mergedTreatment.getStatus());
                         existingLocalTreatment.setUpdateDate(mergedTreatment.getUpdateDate());
                         

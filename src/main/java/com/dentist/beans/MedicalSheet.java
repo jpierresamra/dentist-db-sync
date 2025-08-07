@@ -10,8 +10,6 @@ import org.springframework.data.domain.Persistable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -125,9 +123,6 @@ public class MedicalSheet implements Serializable, Persistable<UUID>, Comparable
     
     @Column(name = "notes")
     private String notes;
-
-    @Column(name = "status", nullable = false)
-    private int status = STATUS_CREATED;
 
     @Transient
     private boolean isNew = false;
@@ -398,14 +393,6 @@ public class MedicalSheet implements Serializable, Persistable<UUID>, Comparable
 		this.notes = notes;
 	}
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public void setNew(boolean isNew) {
         this.isNew = isNew;
     }
@@ -428,6 +415,6 @@ public class MedicalSheet implements Serializable, Persistable<UUID>, Comparable
                 + previousDentalTreatments + ", smoking=" + smoking + ", sports=" + sports + ", travel=" + travel
                 + ", otherActivity=" + otherActivity + ", menstruation=" + menstruation + ", pregnancy=" + pregnancy
                 + ", breastfeeding=" + breastfeeding + ", otherFemale=" + otherFemale + ", createDate=" + createDate
-                + ", updateDate=" + updateDate + ", notes=" + notes + ", status=" + status + "]";
+                + ", updateDate=" + updateDate + ", notes=" + notes + ", isNew=" + isNew + "]";
     }
 }

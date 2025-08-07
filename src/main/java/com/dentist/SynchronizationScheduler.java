@@ -19,7 +19,7 @@ public class SynchronizationScheduler {
         this.customerSyncHelper = customerSyncHelper;
     }
 
-    @Scheduled(fixedRate = 20000) // Run every 30 seconds
+    @Scheduled(fixedRate = 15000) // Run every 30 seconds
     public void syncData() {
     	eventBasedSyncService.processQueuedSyncEvents();
     	System.out.println("SynchronizationScheduler: Running scheduled sync task");

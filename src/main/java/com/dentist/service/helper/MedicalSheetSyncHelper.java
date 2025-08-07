@@ -62,9 +62,6 @@ public class MedicalSheetSyncHelper {
             case UPDATE:
                 syncMedicalSheetUpdate(syncItem.getEntityId(), localToCloud);
                 break;
-            case DELETE:
-                syncMedicalSheetDelete(syncItem.getEntityId(), localToCloud);
-                break;
             default:
                 throw new IllegalArgumentException("Unknown change type: " + syncItem.getChangeType());
         }
@@ -186,37 +183,6 @@ public class MedicalSheetSyncHelper {
                 }
             } else {
                 logger.warn("Cloud medical sheet {} not found for UPDATE sync for account {}", medicalSheetId, accountId);
-            }
-        }
-    }
-
-    /**
-     * Handles DELETE sync operations for medical sheets.
-     */
-    private void syncMedicalSheetDelete(UUID medicalSheetId, boolean localToCloud) throws Exception {
-        if (localToCloud) {
-            // Sync from local to cloud - mark as deleted in cloud
-            Optional<MedicalSheet> cloudMedicalSheetOpt = cloudMedicalSheetRepository.findByIdAndAccountId(medicalSheetId, accountId);
-            
-            if (cloudMedicalSheetOpt.isPresent()) {
-                MedicalSheet cloudMedicalSheet = cloudMedicalSheetOpt.get();
-                cloudMedicalSheet.setStatus(MedicalSheet.STATUS_DELETED);
-                cloudMedicalSheetRepository.save(cloudMedicalSheet);
-                logger.info("Marked medical sheet {} as deleted in cloud", medicalSheetId);
-            } else {
-                logger.info("Medical sheet {} not found in cloud for DELETE sync (already deleted?)", medicalSheetId);
-            }
-        } else {
-            // Sync from cloud to local - mark as deleted in local
-            Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findById(medicalSheetId);
-            
-            if (localMedicalSheetOpt.isPresent()) {
-                MedicalSheet localMedicalSheet = localMedicalSheetOpt.get();
-                localMedicalSheet.setStatus(MedicalSheet.STATUS_DELETED);
-                localMedicalSheetRepository.save(localMedicalSheet);
-                logger.info("Marked medical sheet {} as deleted in local from cloud", medicalSheetId);
-            } else {
-                logger.info("Medical sheet {} not found in local for DELETE sync (already deleted?)", medicalSheetId);
             }
         }
     }
