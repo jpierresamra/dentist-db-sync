@@ -1,21 +1,39 @@
 package com.dentist;
-
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.dentist.service.DBSyncService;
+import com.dentist.service.EventBasedSyncService;
+import com.dentist.service.helper.CustomerSyncHelper;
+
+import jakarta.annotation.PreDestroy;
 
 @Component
 public class SynchronizationScheduler {
 
-    private final DBSyncService dbSyncService;
+    private final CustomerSyncHelper customerSyncHelper;
 
-    public SynchronizationScheduler(DBSyncService dbSyncService) {
-        this.dbSyncService = dbSyncService;
+    private final EventBasedSyncService eventBasedSyncService;
+
+    public SynchronizationScheduler(EventBasedSyncService eventBasedSyncService, CustomerSyncHelper customerSyncHelper) {
+        this.eventBasedSyncService = eventBasedSyncService;
+        this.customerSyncHelper = customerSyncHelper;
     }
 
-    @Scheduled(fixedRate = 30000) // Run every 60 seconds
+    @Scheduled(fixedRate = 20000) // Run every 30 seconds
     public void syncData() {
-    	dbSyncService.synchronizeData();
+    	eventBasedSyncService.processQueuedSyncEvents();
+    	System.out.println("SynchronizationScheduler: Running scheduled sync task");
+    }
+
+    @PreDestroy
+    public void onShutdown() {
+        System.out.println("SynchronizationScheduler: Server is shutting down, running final sync...");
+        try {
+            eventBasedSyncService.processQueuedSyncEvents();
+            System.out.println("SynchronizationScheduler: Final sync completed successfully");
+        } catch (Exception e) {
+            System.err.println("SynchronizationScheduler: Error during final sync: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

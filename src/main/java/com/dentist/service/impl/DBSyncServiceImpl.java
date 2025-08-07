@@ -1,13 +1,8 @@
 package com.dentist.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.dentist.beans.Appointment;
-import com.dentist.beans.Customer;
-import com.dentist.beans.Treatment;
 import com.dentist.repository.cloud.CloudAppointmentRepositoryJPA;
 import com.dentist.repository.cloud.CloudCustomerRepositoryJPA;
 import com.dentist.repository.cloud.CloudTreatmentRepositoryJPA;
@@ -47,12 +42,12 @@ public class DBSyncServiceImpl implements DBSyncService {
 
 	@Override
 	public void synchronizeData() {
-		synchronizeCustomers();
+		/*synchronizeCustomers();
 		synchronizeAppointments();
-		synchronizeTreatments();
+		synchronizeTreatments();*/
 	}
 
-	private void synchronizeTreatments() {
+	/*private void synchronizeTreatments() {
 		// Get from the cloud all appointments related to this local account id
 		List<Treatment> cloudTreatments = cloudTreatmentRepository.findByAccountId(this.accountId);
 		List<Treatment> localTreatments = localTreatmentRepository.findAll();
@@ -161,5 +156,5 @@ public class DBSyncServiceImpl implements DBSyncService {
 				}
 			}
 		}
-	}
+	}*/
 }

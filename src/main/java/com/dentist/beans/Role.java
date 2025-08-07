@@ -1,5 +1,12 @@
 package com.dentist.beans;
 
 public enum Role {
-	USER, ADMIN
+	ADMIN, 
+	DOCTOR,
+	ASSISTANT,
+	SECRETARY;
+	
+	public String getAuthority() {
+		return "ROLE_" + this.name();
+	}
 }

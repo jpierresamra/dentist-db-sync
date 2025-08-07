@@ -1,5 +1,10 @@
 package com.dentist.config;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,37 +16,32 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.dentist.beans.Tooth;
+import com.dentist.repository.local.LocalToothRepositoryJPA;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
 @Configuration
-@EnableJpaRepositories(
-    basePackages = "com.dentist.repository.local",
-    entityManagerFactoryRef = "localEntityManagerFactory",
-    transactionManagerRef = "localTransactionManager"
-)
+@EnableJpaRepositories(basePackages = "com.dentist.repository.local", entityManagerFactoryRef = "localEntityManagerFactory", transactionManagerRef = "localTransactionManager")
 public class LocalDatabaseConfig {
 
-    @Bean(name = "localEntityManagerFactory")
-    LocalContainerEntityManagerFactoryBean localEntityManagerFactory(
-            EntityManagerFactoryBuilder builder,
-            @Qualifier("localDataSource") DataSource localDataSource) {
-        return builder
-                .dataSource(localDataSource)
-                .packages("com.dentist.beans")
-                .persistenceUnit("local")
-                .build();
-    }
+	@Bean(name = "localEntityManagerFactory")
+	LocalContainerEntityManagerFactoryBean localEntityManagerFactory(EntityManagerFactoryBuilder builder,
+			@Qualifier("localDataSource") DataSource localDataSource) {
+		return builder.dataSource(localDataSource).packages("com.dentist.beans").persistenceUnit("local").build();
+	}
 
-    @Bean(name = "localTransactionManager")
-    PlatformTransactionManager localTransactionManager(
-            @Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
-        return new JpaTransactionManager(localEntityManagerFactory);
-    }
+	@Bean(name = "localTransactionManager")
+	PlatformTransactionManager localTransactionManager(
+			@Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
+		return new JpaTransactionManager(localEntityManagerFactory);
+	}
 
-    @Bean(name = "localEntityManager")
-    EntityManager localEntityManager(
-        @Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
-    return localEntityManagerFactory.createEntityManager();
-}
+	@Bean(name = "localEntityManager")
+	EntityManager localEntityManager(
+			@Qualifier("localEntityManagerFactory") EntityManagerFactory localEntityManagerFactory) {
+		return localEntityManagerFactory.createEntityManager();
+	}
+
 }

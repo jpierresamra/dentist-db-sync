@@ -20,7 +20,7 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "appointments")
-public class Appointment implements Serializable, Persistable<UUID> {
+public class Appointment implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	/**
 	 * 
@@ -53,7 +53,8 @@ public class Appointment implements Serializable, Persistable<UUID> {
 	private Integer status;
 
 	@Column(name = "clinic_id", nullable = false)
-	private int clinicId;
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	private UUID clinicId;
 
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
@@ -121,6 +122,7 @@ public class Appointment implements Serializable, Persistable<UUID> {
 		this.createDate = createDate;
 	}
 
+	@Override
 	public Date getUpdateDate() {
 		return updateDate;
 	}
@@ -129,11 +131,11 @@ public class Appointment implements Serializable, Persistable<UUID> {
 		this.updateDate = updateDate;
 	}
 
-	public int getClinicId() {
+	public UUID getClinicId() {
 		return clinicId;
 	}
 
-	public void setClinicId(int clinicId) {
+	public void setClinicId(UUID clinicId) {
 		this.clinicId = clinicId;
 	}
 

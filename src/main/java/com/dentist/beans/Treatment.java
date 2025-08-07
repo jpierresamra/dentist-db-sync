@@ -5,60 +5,79 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.domain.Persistable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "treatments")
-public class Treatment implements Serializable, Persistable<UUID>
-{
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Treatment implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -689438842104412947L;
-	
+	public static final int STATUS_CREATED = 1;
+	public static final int STATUS_DELETED = 2;
+
 	@Id
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	private UUID id;
-	
-	@Column(name = "customer_id")
-	@JdbcTypeCode(SqlTypes.VARCHAR)
-	private UUID		customerId;
-	
+
+	@ManyToOne
+	@JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
+	private Customer customer;
+
 	@Column(name = "account_id", nullable = false)
 	private int accountId;
 	
-	@Column(name = "treatment_date")
-	private Date		treatmentDate;
-	
-	@Column(name = "tooth")
-	private String		tooth;
+	@Column(name = "operation_id", nullable = true)
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	private UUID operationId;
+
+	@Column(name = "operate_date")
+	private Date operateDate;
+
+	@OneToOne
+	@JoinColumn(name = "procedure_id", referencedColumnName = "id", nullable = false)
+	private Procedure procedure;
+
+	@OneToMany(mappedBy = "treatment", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference  // This manages the forward reference
+	private Set<TreatmentTooth> treatmentTeeth;
 	
 	@Column(name = "description")
-	private String		description;
-	
+	private String description;
+
 	@Column(name = "fee")
-	private BigDecimal	fee;
-	
-	@Column(name = "paid")
-	private BigDecimal	paid;
-	
-	@Column(name = "remaining")
-	private BigDecimal	remaining;
-	
+	private BigDecimal fee;
+
 	@Column(name = "status")
 	private int status;
-	
+
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
 
@@ -68,6 +87,13 @@ public class Treatment implements Serializable, Persistable<UUID>
 	@Transient
 	private boolean isNew = false;
 	
+	public Treatment() {
+		super();
+		fee = new BigDecimal(0.00);
+		operateDate = new Date();
+		treatmentTeeth = new HashSet<>();
+	}
+
 	public UUID getId() {
 		return id;
 	}
@@ -76,86 +102,47 @@ public class Treatment implements Serializable, Persistable<UUID>
 		this.id = id;
 	}
 
-	public void setRemaining(BigDecimal remaining) {
-		this.remaining = remaining;
+	public String getOperateDateString() {
+		SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy");
+		String operateDateString = sf.format(this.operateDate);
+		return operateDateString;
 	}
 	
-	public Date getTreatmentDate()
-	{
-		return treatmentDate;
+	public Date getOperateDate() {
+		return operateDate;
 	}
 
-	public String getTreatmentDateString()
-	{
-		SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy");
-		String treatmentDateString = sf.format(this.treatmentDate);
-		return treatmentDateString;
+	public void setOperateDate(Date operateDate) {
+		this.operateDate = operateDate;
 	}
 
-	public void setTreatmentDate(Date treatmentDate)
-	{
-		this.treatmentDate = treatmentDate;
-	}
-
-	public String getTooth()
-	{
-		return tooth;
-	}
-
-	public void setTooth(String tooth)
-	{
-		this.tooth = tooth;
-	}
-
-	public String getDescription()
-	{
+	public String getDescription() {
 		return description;
 	}
 
-	public void setDescription(String description)
-	{
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
-	public BigDecimal getFee()
-	{
+	public BigDecimal getFee() {
 		return fee;
 	}
 
-	public String getFeeString()
-	{
+	public String getFeeString() {
 		DecimalFormat df = new DecimalFormat("###,##0.000");
 		return df.format(this.fee);
 	}
 
-	public void setFee(BigDecimal fee)
-	{
+	public void setFee(BigDecimal fee) {
 		this.fee = fee;
 	}
 
-	public BigDecimal getPaid()
-	{
-		return paid;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public String getPaidString()
-	{
-		DecimalFormat df = new DecimalFormat("###,##0.000");
-		return df.format(paid);
-	}
-
-	public void setPaid(BigDecimal paid)
-	{
-		this.paid = paid;
-	}
-
-
-	public UUID getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(UUID customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	public int getStatus() {
@@ -166,27 +153,6 @@ public class Treatment implements Serializable, Persistable<UUID>
 		this.status = status;
 	}
 
-	public BigDecimal getRemaining() {
-		remaining = fee.subtract(paid);
-		return remaining;
-	}
-	
-	public Date getCreateDate() {
-		return createDate;
-	}
-
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
 	public int getAccountId() {
 		return accountId;
 	}
@@ -195,6 +161,47 @@ public class Treatment implements Serializable, Persistable<UUID>
 		this.accountId = accountId;
 	}
 
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	@Override
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
+	}
+
+	public Procedure getProcedure() {
+		return procedure;
+	}
+
+	public void setProcedure(Procedure procedure) {
+		this.procedure = procedure;
+	}
+
+	public UUID getOperationId() {
+		return operationId;
+	}
+
+	public void setOperationId(UUID operationId) {
+		this.operationId = operationId;
+	}
+
+	public Set<TreatmentTooth> getTreatmentTeeth() {
+		return treatmentTeeth;
+	}
+
+	public void setTreatmentTeeth(Set<TreatmentTooth> treatmentTeeth) {
+		this.treatmentTeeth = treatmentTeeth;
+	}
+	
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}
@@ -203,12 +210,12 @@ public class Treatment implements Serializable, Persistable<UUID>
 	public boolean isNew() {
 		return isNew;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Treatment [id=" + id + ", customerId=" + customerId + ", treatmentDate=" + treatmentDate + ", tooth="
-				+ tooth + ", description=" + description + ", fee=" + fee + ", paid=" + paid + ", remaining="
-				+ remaining + ", status=" + status + ", createDate=" + createDate + ", updateDate=" + updateDate + ", accountId=" + accountId + "]";
+		return "Treatment [id=" + id + ", customer=" + customer + ", accountId=" + accountId + ", operationId="
+				+ operationId + ", operateDate=" + operateDate + ", procedure=" + procedure + ", treatmentTeeth="
+				+ treatmentTeeth + ", description=" + description + ", fee=" + fee + ", status=" + status
+				+ ", createDate=" + createDate + ", updateDate=" + updateDate + "]";
 	}
-
 }

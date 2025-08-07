@@ -12,26 +12,33 @@ import com.dentist.util.StringUtil;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "customers")
-public class Customer implements Serializable, Persistable<UUID> {
+public class Customer implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final String[] bloodTypes = { "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-" };
-
+	public static final int STATUS_CREATED = 1;
+	public static final int STATUS_DELETED = 2;
+	
 	@Id
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	private UUID id;
 
 	@Column(name = "first_name")
 	private String firstName;
+	
+	@Column(name = "email")
+	private String email;
 
 	@Column(name = "middle_name")
 	private String middleName;
@@ -77,7 +84,7 @@ public class Customer implements Serializable, Persistable<UUID> {
 	
 	@Column(name = "account_id")
 	private int accountId;
-
+	
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
 
@@ -85,16 +92,14 @@ public class Customer implements Serializable, Persistable<UUID> {
 	private Date updateDate;
 	
 	@Transient
+	private Date nextAppointmentDate;
+	
+	@Column(name = "referral")
+	private String referral;
+
+	@Transient
 	private boolean isNew = false;
 	
-	public UUID getId() {
-		return id;
-	}
-
-	public void setId(UUID id) {
-		this.id = id;
-	}
-
 	public String getGender() {
 		return gender;
 	}
@@ -126,7 +131,7 @@ public class Customer implements Serializable, Persistable<UUID> {
 	public void setBloodType(String bloodType) {
 		this.bloodType = bloodType;
 	}
-	
+
 	public String getFirstName() {
 		return firstName;
 	}
@@ -141,6 +146,19 @@ public class Customer implements Serializable, Persistable<UUID> {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 	public String getAddress() {
@@ -173,6 +191,15 @@ public class Customer implements Serializable, Persistable<UUID> {
 
 	public void setCreateDate(Date createDate) {
 		this.createDate = createDate;
+	}
+	
+	@Override
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
 	}
 
 	public String getReferenceNumber() {
@@ -226,18 +253,6 @@ public class Customer implements Serializable, Persistable<UUID> {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	
-	public Date getUpdateDate() {
-		return updateDate;
-	}
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
 
 	public int getAccountId() {
 		return accountId;
@@ -245,6 +260,30 @@ public class Customer implements Serializable, Persistable<UUID> {
 
 	public void setAccountId(int accountId) {
 		this.accountId = accountId;
+	}
+
+	public Date getNextAppointmentDate() {
+		return nextAppointmentDate;
+	}
+
+	public void setNextAppointmentDate(Date nextAppointmentDate) {
+		this.nextAppointmentDate = nextAppointmentDate;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
+	public String getReferral() {
+		return referral;
+	}
+
+	public void setReferral(String referral) {
+		this.referral = referral;
 	}
 
 	public void setNew(boolean isNew) {
@@ -255,7 +294,7 @@ public class Customer implements Serializable, Persistable<UUID> {
 	public boolean isNew() {
 		return isNew;
 	}
-
+	
 	@Override
 	public String toString() {
 		// return a customer with all the properties
@@ -264,6 +303,8 @@ public class Customer implements Serializable, Persistable<UUID> {
 				+ mobileNumber + ", homeNumber=" + homeNumber + ", createDate=" + createDate
 				+ ", updateDate=" + updateDate + ", accountId=" + accountId + ", bloodType=" + bloodType 
 				+ ", notes=" + notes + ", treatmentPlan=" + treatmentPlan + ", medicalHistory=" + medicalHistory + ", status=" + status 
-				+ "]";
-	}
+				+ ", email=" + email + ", referral=" + referral+"]";
+	}		
+
 }
+//

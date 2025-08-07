@@ -1,16 +1,21 @@
 package com.dentist.beans;
 
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,21 +28,26 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public static final int STATUS_ACTIVE = 1;
+	public static final int STATUS_DELETED = 2;
+	
 	public User() {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
-	private Long id;
+	@JdbcTypeCode(SqlTypes.VARCHAR)
+	private UUID id;
 
+	@Column(name = "user_name", unique = true, nullable = false)
+	private String username;
+	
 	@Column(name = "first_name")
 	private String firstName;
 
@@ -49,7 +59,19 @@ public class User implements UserDetails {
 
 	@Column(name = "password")
 	private String password;
+	
+	@Column(name = "phone")
+	private String phone;
 
+	@Column(name = "status")
+	private int status;
+
+	@Column(name = "create_date", updatable = false, insertable = true)
+	private Date createDate;
+	
+	@Column(name = "update_date")
+	private Date updateDate;
+	
 	@ManyToOne
 	@JoinColumn(name = "account_id", referencedColumnName = "account_id", nullable = false)
 	private Account account;
@@ -57,22 +79,27 @@ public class User implements UserDetails {
 	@ManyToMany
 	@JoinTable(name = "user_clinics", // Name of the join table
 			joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), // Foreign key for User
-			inverseJoinColumns = @JoinColumn(name = "clinic_id", referencedColumnName = "clinic_id") // Foreign key for
-																										// Clinic
+			inverseJoinColumns = @JoinColumn(name = "clinic_id", referencedColumnName = "clinic_id") 
 	)
 	private List<Clinic> clinics;
 
+	@ElementCollection(fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)
-	private Role role;
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+	@Column(name = "role")
+	private Set<Role> roles;
 
 	@Transient
 	private String token;
 
-	public Long getId() {
+	@Transient
+	private boolean isNew = false;
+	
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
@@ -120,12 +147,12 @@ public class User implements UserDetails {
 		this.clinics = clinics;
 	}
 
-	public Role getRole() {
-		return role;
+	public Set<Role> getRoles() {
+		return roles;
 	}
 
-	public void setRole(Role role) {
-		this.role = role;
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
 	}
 
 	public String getToken() {
@@ -136,44 +163,46 @@ public class User implements UserDetails {
 		this.token = token;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("Customer[id=%d, firstName='%s', lastName='%s']", id, firstName, lastName);
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public Date getCreateDate() {
+		return createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
 	}
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(new SimpleGrantedAuthority(this.role.name()));
+	public Date getUpdateDate() {
+		return updateDate;
 	}
 
-	@Override
-	public String getUsername() {
-		return this.email;
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
 	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
+	
+	public void setNew(boolean isNew) {
+		this.isNew = isNew;
 	}
-
+	
 	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return true;
-	}
-
-	@Override
-	public String getPassword() {
-		return this.password;
+	public boolean isNew() {
+		return isNew;
 	}
 
 }
