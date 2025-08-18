@@ -15,6 +15,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -84,6 +86,10 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 	
 	@Column(name = "account_id")
 	private int accountId;
+	
+	@ManyToOne
+	@JoinColumn(name = "class_type_id", referencedColumnName = "id", nullable = true)
+	private ClassType classType;
 	
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
@@ -285,6 +291,14 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 	public void setReferral(String referral) {
 		this.referral = referral;
 	}
+	
+	public ClassType getClassType() {
+		return classType;
+	}
+
+	public void setClassType(ClassType classType) {
+		this.classType = classType;
+	}
 
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
@@ -303,7 +317,7 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 				+ mobileNumber + ", homeNumber=" + homeNumber + ", createDate=" + createDate
 				+ ", updateDate=" + updateDate + ", accountId=" + accountId + ", bloodType=" + bloodType 
 				+ ", notes=" + notes + ", treatmentPlan=" + treatmentPlan + ", medicalHistory=" + medicalHistory + ", status=" + status 
-				+ ", email=" + email + ", referral=" + referral+"]";
+				+ ", email=" + email + ", referral=" + referral+ ", classType=" + classType+"]";
 	}		
 
 }

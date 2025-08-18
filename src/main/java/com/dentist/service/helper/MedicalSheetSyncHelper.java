@@ -73,7 +73,7 @@ public class MedicalSheetSyncHelper {
     private void syncMedicalSheetCreate(UUID medicalSheetId, boolean localToCloud) throws Exception {
         if (localToCloud) {
             // Sync from local to cloud
-            Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findById(medicalSheetId);
+            Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findByIdAndAccountId(medicalSheetId, accountId);
             
             if (localMedicalSheetOpt.isPresent()) {
                 MedicalSheet localMedicalSheet = localMedicalSheetOpt.get();
@@ -101,7 +101,7 @@ public class MedicalSheetSyncHelper {
                 MedicalSheet cloudMedicalSheet = cloudMedicalSheetOpt.get();
                 
                 // Check if medical sheet already exists locally
-                Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findById(medicalSheetId);
+                Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findByIdAndAccountId(medicalSheetId, accountId);
                 
                 if (localMedicalSheetOpt.isEmpty()) {
                     // Create in local
@@ -124,7 +124,7 @@ public class MedicalSheetSyncHelper {
     private void syncMedicalSheetUpdate(UUID medicalSheetId, boolean localToCloud) throws Exception {
         if (localToCloud) {
             // Sync from local to cloud
-            Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findById(medicalSheetId);
+            Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findByIdAndAccountId(medicalSheetId, accountId);
             
             if (localMedicalSheetOpt.isPresent()) {
                 MedicalSheet localMedicalSheet = localMedicalSheetOpt.get();
@@ -159,7 +159,7 @@ public class MedicalSheetSyncHelper {
             
             if (cloudMedicalSheetOpt.isPresent()) {
                 MedicalSheet cloudMedicalSheet = cloudMedicalSheetOpt.get();
-                Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findById(medicalSheetId);
+                Optional<MedicalSheet> localMedicalSheetOpt = localMedicalSheetRepository.findByIdAndAccountId(medicalSheetId, accountId);
                 
                 if (localMedicalSheetOpt.isPresent()) {
                     MedicalSheet localMedicalSheet = localMedicalSheetOpt.get();
