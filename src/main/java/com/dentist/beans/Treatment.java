@@ -50,6 +50,10 @@ public class Treatment implements Serializable, Persistable<UUID>, ComparableSyn
 	@ManyToOne
 	@JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
 	private Customer customer;
+	
+	@ManyToOne
+	@JoinColumn(name = "doctor_id", referencedColumnName = "id", nullable = false)
+	private User doctor;
 
 	@Column(name = "account_id", nullable = false)
 	private int accountId;
@@ -202,6 +206,14 @@ public class Treatment implements Serializable, Persistable<UUID>, ComparableSyn
 		this.treatmentTeeth = treatmentTeeth;
 	}
 	
+	public User getDoctor() {
+		return doctor;
+	}
+
+	public void setDoctor(User doctor) {
+		this.doctor = doctor;
+	}
+
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}

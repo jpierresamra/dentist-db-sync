@@ -56,6 +56,9 @@ public class Clinic implements Serializable, Persistable<UUID>, ComparableSyncIt
 	
 	@Column(name = "account_id")
 	private int accountId;
+	
+	@Column(name = "chairs")
+	private int chairs;
 
 	@Transient
 	private boolean isNew = false;
@@ -126,6 +129,14 @@ public class Clinic implements Serializable, Persistable<UUID>, ComparableSyncIt
 		this.accountId = accountId;
 	}
 	
+	public int getChairs() {
+		return chairs;
+	}
+
+	public void setChairs(int chairs) {
+		this.chairs = chairs;
+	}
+
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}
