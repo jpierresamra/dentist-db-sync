@@ -90,7 +90,7 @@ public class Recall implements Serializable, Persistable<UUID>, ComparableSyncIt
 	public Recall() {
 	}
 
-	// Getters and Setters
+	@Override
 	public UUID getId() {
 		return id;
 	}

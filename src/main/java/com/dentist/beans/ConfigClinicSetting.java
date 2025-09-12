@@ -10,13 +10,15 @@ import org.springframework.data.domain.Persistable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "config_settings")
-public class ConfigSetting implements Serializable, Persistable<UUID>, ComparableSyncItem {
+@Table(name = "config_clinic_settings")
+public class ConfigClinicSetting implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
     @Id
     @JdbcTypeCode(SqlTypes.VARCHAR)
@@ -34,26 +36,33 @@ public class ConfigSetting implements Serializable, Persistable<UUID>, Comparabl
     @Column(name = "description", length = 255)
     private String description;
 
-    @Column(name = "update_date")
-    private Date updateDate;
+	@Column(name = "create_date", updatable = false, insertable = true)
+	private Date createDate;
 
+	@Column(name = "update_date")
+	private Date updateDate;
+
+    @Column(name = "clinic_id", nullable = false)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    private UUID clinicId;
+    
     @Column(name = "account_id", nullable = false)
     private int accountId;
-    
+
 	@Transient
 	private boolean isNew = false;
-
+	
     // Default constructor
-    public ConfigSetting() {}
+    public ConfigClinicSetting() {}
 
     // Constructor with key and value
-    public ConfigSetting(String settingKey, String settingValue, int accountId) {
+    public ConfigClinicSetting(String settingKey, String settingValue, int accountId) {
         this.settingKey = settingKey;
         this.settingValue = settingValue;
         this.accountId = accountId;
     }
 
-    // Getters and Setters
+    @Override
     public UUID getId() {
         return id;
     }
@@ -110,7 +119,15 @@ public class ConfigSetting implements Serializable, Persistable<UUID>, Comparabl
     public void setAccountId(int accountId) {
         this.accountId = accountId;
     }
-    
+
+	public UUID getClinicId() {
+		return clinicId;
+	}
+
+	public void setClinicId(UUID clinicId) {
+		this.clinicId = clinicId;
+	}
+
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}
@@ -119,10 +136,18 @@ public class ConfigSetting implements Serializable, Persistable<UUID>, Comparabl
 	public boolean isNew() {
 		return isNew;
 	}
+	
+	public Date getCreateDate() {
+		return createDate;
+	}
 
-    @Override
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	@Override
     public String toString() {
-		return "ConfigSetting [id=" + id + ", settingKey=" + settingKey + ", settingValue=" + settingValue
+		return "ConfigAccountSetting [id=" + id + ", settingKey=" + settingKey + ", settingValue=" + settingValue
 				+ ", settingType=" + settingType + ", description=" + description + ", updateDate=" + updateDate
 				+ ", accountId=" + accountId + "]";
     }

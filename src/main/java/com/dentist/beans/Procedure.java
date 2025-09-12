@@ -21,18 +21,14 @@ import jakarta.persistence.Transient;
 @Table(name = "procedures")
 public class Procedure implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 6069782586148815229L;
-	public static final int STATUS_CREATED = 1;
+    public static final int STATUS_CREATED = 1;
 	public static final int STATUS_DELETED = 2;
+	public static final int STATUS_DISABLED = 3;
 	
     public static final String PRICE_PER_TOOTH = "per_tooth";
     public static final String PRICE_PER_SURFACE = "per_surface";
     public static final String PRICE_PER_QUADRANT = "per_quadrant";
     public static final String PRICE_PER_ARCH = "per_arch";
-    public static final String PRICE_PER_MOUTH = "per_mouth";
     public static final String PRICE_FLAT_FEE = "flat_fee";
 	
     @Id
@@ -70,12 +66,16 @@ public class Procedure implements Serializable, Persistable<UUID>, ComparableSyn
     private String display;
 
     @Transient
+    private String[] surfaces;
+    
+    @Transient
     private boolean isNew = false;
     
     public Procedure() {
         super();
     }
 
+    @Override
     public UUID getId() {
         return id;
     }
@@ -158,12 +158,21 @@ public class Procedure implements Serializable, Persistable<UUID>, ComparableSyn
 	}
 
 	public String getDisplay() {
-		return this.display;	
+		return display;
 	}
-	
+
 	public void setDisplay(String display) {
 		this.display = display;
 	}
+	
+	public String[] getSurfaces() {
+		return surfaces;
+	}
+
+	public void setSurfaces(String[] surfaces) {
+		this.surfaces = surfaces;
+	}
+	
 
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;

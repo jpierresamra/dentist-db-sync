@@ -17,7 +17,8 @@ import com.dentist.service.helper.AccountSyncHelper;
 import com.dentist.service.helper.AppointmentSyncHelper;
 import com.dentist.service.helper.ClassTypeSyncHelper;
 import com.dentist.service.helper.ClinicSyncHelper;
-import com.dentist.service.helper.ConfigSettingSyncHelper;
+import com.dentist.service.helper.ConfigAccountSettingSyncHelper;
+import com.dentist.service.helper.ConfigClinicSettingSyncHelper;
 import com.dentist.service.helper.CustomerSyncHelper;
 import com.dentist.service.helper.InvoiceSyncHelper;
 import com.dentist.service.helper.MedicalSheetSyncHelper;
@@ -44,7 +45,8 @@ public class EventBasedSyncServiceImpl implements EventBasedSyncService {
     private final MedicalSheetSyncHelper medicalSheetSyncHelper;
     private final ClassTypeSyncHelper classTypeSyncHelper;
     private final ClinicSyncHelper clinicSyncHelper;
-    private final ConfigSettingSyncHelper configSettingSyncHelper;
+    private final ConfigClinicSettingSyncHelper configClinicSettingSyncHelper;
+    private final ConfigAccountSettingSyncHelper configAccountSettingSyncHelper;
     private final ProcedureSyncHelper procedureSyncHelper;
     private final AccountSyncHelper accountSyncHelper;
     private final PaymentSyncHelper paymentSyncHelper;
@@ -71,7 +73,8 @@ public class EventBasedSyncServiceImpl implements EventBasedSyncService {
             MedicalSheetSyncHelper medicalSheetSyncHelper,
             ClassTypeSyncHelper classTypeSyncHelper,
             ClinicSyncHelper clinicSyncHelper,
-            ConfigSettingSyncHelper configSettingSyncHelper,
+            ConfigAccountSettingSyncHelper configAccountSettingSyncHelper,
+            ConfigClinicSettingSyncHelper configClinicSettingSyncHelper,
             ProcedureSyncHelper procedureSyncHelper,
             AccountSyncHelper accountSyncHelper,
             PaymentSyncHelper paymentSyncHelper,
@@ -87,7 +90,8 @@ public class EventBasedSyncServiceImpl implements EventBasedSyncService {
         this.medicalSheetSyncHelper = medicalSheetSyncHelper;
         this.classTypeSyncHelper = classTypeSyncHelper;
         this.clinicSyncHelper = clinicSyncHelper;
-        this.configSettingSyncHelper = configSettingSyncHelper;
+        this.configAccountSettingSyncHelper = configAccountSettingSyncHelper;
+        this.configClinicSettingSyncHelper = configClinicSettingSyncHelper;
         this.procedureSyncHelper = procedureSyncHelper;
         this.accountSyncHelper = accountSyncHelper;
         this.paymentSyncHelper = paymentSyncHelper;
@@ -201,8 +205,11 @@ public class EventBasedSyncServiceImpl implements EventBasedSyncService {
             case SyncQueueItem.ENTITY_TYPE_CLINIC:
                 clinicSyncHelper.processClinicSyncItem(syncItem, localToCloud);
                 break;
-            case SyncQueueItem.ENTITY_TYPE_CONFIG_SETTING:
-            	configSettingSyncHelper.processConfigSettingSyncItem(syncItem, localToCloud);
+            case SyncQueueItem.ENTITY_TYPE_CONFIG_ACCOUNT_SETTING:
+            	configAccountSettingSyncHelper.processConfigSettingSyncItem(syncItem, localToCloud);
+                break;
+            case SyncQueueItem.ENTITY_TYPE_CONFIG_CLINIC_SETTING:
+            	configClinicSettingSyncHelper.processConfigSettingSyncItem(syncItem, localToCloud);
                 break;
             default:
                 logger.warn("Unknown entity type: {} for sync item {}", 

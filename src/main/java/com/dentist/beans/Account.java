@@ -65,7 +65,7 @@ public class Account implements Serializable, Persistable<Integer>, ComparableSy
 	
 	@OneToMany(mappedBy = "accountId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@MapKey(name = "settingKey")
-	private Map<String, ConfigSetting> settings = new HashMap<>();
+	private Map<String, ConfigAccountSetting> settings = new HashMap<>();
 
 	@Transient
 	private boolean isNew = false;
@@ -150,7 +150,7 @@ public class Account implements Serializable, Persistable<Integer>, ComparableSy
 		}
 	}
 
-	public void setSettings(Map<String, ConfigSetting> settings) {
+	public void setSettings(Map<String, ConfigAccountSetting> settings) {
 		this.settings = settings;
 	}
 	
@@ -160,7 +160,7 @@ public class Account implements Serializable, Persistable<Integer>, ComparableSy
 	 */
 	public Map<String, String> getSettingsValues() {
 		Map<String, String> settingsValues = new HashMap<>();
-		for (Map.Entry<String, ConfigSetting> entry : settings.entrySet()) {
+		for (Map.Entry<String, ConfigAccountSetting> entry : settings.entrySet()) {
 			settingsValues.put(entry.getKey(), entry.getValue().getSettingValue());
 		}
 		return settingsValues;
@@ -174,7 +174,7 @@ public class Account implements Serializable, Persistable<Integer>, ComparableSy
 	public Map<String, String> getSpecificSettings(String... keys) {
 		Map<String, String> specificSettings = new HashMap<>();
 		for (String key : keys) {
-			ConfigSetting setting = settings.get(key);
+			ConfigAccountSetting setting = settings.get(key);
 			if (setting != null) {
 				specificSettings.put(key, setting.getSettingValue());
 			}
@@ -188,7 +188,7 @@ public class Account implements Serializable, Persistable<Integer>, ComparableSy
 	 * @return the setting value or null if not found
 	 */
 	public String getSettingValue(String key) {
-		ConfigSetting setting = settings.get(key);
+		ConfigAccountSetting setting = settings.get(key);
 		return setting != null ? setting.getSettingValue() : null;
 	}
 	

@@ -25,7 +25,7 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "invoice_amount_allocations")
-public class InvoiceAmountAllocation implements Serializable, Persistable<UUID> {
+public class InvoiceAmountAllocation implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	private static final long serialVersionUID = -987654321098765432L;
 	public static final int STATUS_ACTIVE = 1;
@@ -85,6 +85,7 @@ public class InvoiceAmountAllocation implements Serializable, Persistable<UUID> 
 	}
 
 	// Getters and Setters
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -154,6 +155,7 @@ public class InvoiceAmountAllocation implements Serializable, Persistable<UUID> 
 		this.createDate = createDate;
 	}
 
+	@Override
 	public Date getUpdateDate() {
 		return updateDate;
 	}

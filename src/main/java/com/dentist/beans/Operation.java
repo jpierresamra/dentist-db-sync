@@ -41,10 +41,11 @@ public class Operation implements Serializable, Persistable<UUID>, ComparableSyn
 	 * 
 	 */
 	private static final long serialVersionUID = -689438842104412947L;
-	public static final int STATUS_INPROGRESS = 1;
+	public static final int STATUS_CREATED = 1;
 	public static final int STATUS_DELETED = 2;
-	public static final int STATUS_COMPLETED = 3;
-	public static final int STATUS_CANCELED = 4;
+	public static final int STATUS_INPROGRESS = 3;
+	public static final int STATUS_COMPLETED = 4;
+	public static final int STATUS_CANCELED = 5;
 
 	@Id
 	@JdbcTypeCode(SqlTypes.VARCHAR)
@@ -57,6 +58,10 @@ public class Operation implements Serializable, Persistable<UUID>, ComparableSyn
 	@ManyToOne
 	@JoinColumn(name = "doctor_id", referencedColumnName = "id", nullable = false)
 	private User doctor;
+	
+	@ManyToOne
+	@JoinColumn(name = "clinic_id", referencedColumnName = "clinic_id", nullable = false)
+	private Clinic clinic;
 
 	@Column(name = "account_id", nullable = false)
 	private int accountId;
@@ -109,6 +114,7 @@ public class Operation implements Serializable, Persistable<UUID>, ComparableSyn
 		operationTeeth = new HashSet<>();
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -269,9 +275,7 @@ public class Operation implements Serializable, Persistable<UUID>, ComparableSyn
 	
 	public void setBilled(Boolean billed) {
 		this.billed = billed;
-	}	
-
-	
+	}
 	
 	public User getDoctor() {
 		return doctor;
@@ -281,6 +285,14 @@ public class Operation implements Serializable, Persistable<UUID>, ComparableSyn
 		this.doctor = doctor;
 	}
 
+	public Clinic getClinic() {
+		return clinic;
+	}
+
+	public void setClinic(Clinic clinic) {
+		this.clinic = clinic;
+	}
+	
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}

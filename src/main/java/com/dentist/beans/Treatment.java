@@ -33,15 +33,16 @@ import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "treatments")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Treatment implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -689438842104412947L;
-	public static final int STATUS_CREATED = 1;
+	public static final int STATUS_PLANNED = 1;
 	public static final int STATUS_DELETED = 2;
+	public static final int STATUS_LOADED = 3;
+	public static final int STATUS_CANCELED = 4;
 
 	@Id
 	@JdbcTypeCode(SqlTypes.VARCHAR)
@@ -98,6 +99,7 @@ public class Treatment implements Serializable, Persistable<UUID>, ComparableSyn
 		treatmentTeeth = new HashSet<>();
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -206,6 +208,56 @@ public class Treatment implements Serializable, Persistable<UUID>, ComparableSyn
 		this.treatmentTeeth = treatmentTeeth;
 	}
 	
+	// Convenience methods for working with teeth
+	public Set<Tooth> getTeeth() {
+		Set<Tooth> teeth = new HashSet<>();
+		if (treatmentTeeth != null) {
+			for (TreatmentTooth ot : treatmentTeeth) {
+				teeth.add(ot.getTooth());
+			}
+		}
+		return teeth;
+	}
+	
+	public void addTooth(Tooth tooth) {
+		addTooth(tooth, "ALL");
+	}
+
+	public void addTooth(Tooth tooth, String surface) {
+		if (treatmentTeeth == null) {
+			treatmentTeeth = new HashSet<>();
+		}
+		String finalSurface = surface != null ? surface : "ALL";
+		TreatmentTooth treatmentTooth = new TreatmentTooth(this, tooth, finalSurface);
+		treatmentTeeth.add(treatmentTooth);
+	}
+
+	public void addToothWithSurfaces(Tooth tooth, List<String> surfaces) {
+		if (surfaces == null || surfaces.isEmpty()) {
+			addTooth(tooth, "ALL");
+			return;
+		}
+		
+		for (String surface : surfaces) {
+			addTooth(tooth, surface);
+		}
+	}
+
+	public void removeTooth(Tooth tooth) {
+		if (treatmentTeeth != null) {
+			treatmentTeeth.removeIf(ot -> ot.getTooth().equals(tooth));
+		}
+	}
+
+	public void removeToothSurface(Tooth tooth, String surface) {
+		if (treatmentTeeth != null) {
+			String finalSurface = surface != null ? surface : "ALL";
+			treatmentTeeth.removeIf(ot -> ot.getTooth().equals(tooth) && finalSurface.equals(ot.getSurface()));
+		}
+	}
+	
+	
+
 	public User getDoctor() {
 		return doctor;
 	}

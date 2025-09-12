@@ -128,6 +128,7 @@ public class MedicalSheet implements Serializable, Persistable<UUID>, Comparable
     private boolean isNew = false;
 
     // Getters and Setters
+    @Override
     public UUID getId() {
         return id;
     }

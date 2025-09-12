@@ -3,6 +3,7 @@ package com.dentist.beans;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +16,10 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -29,14 +27,14 @@ import jakarta.persistence.Transient;
 @Table(name = "invoices")
 public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncItem {
 
+	/**
+	 * 
+	 */	
 	private static final long serialVersionUID = -123456789012345678L;
-	
-	// Status constants
 	public static final int STATUS_OPENED = 1;
 	public static final int STATUS_DELETED = 2;
 	public static final int STATUS_CLOSED = 3;
 	
-	// Payment status constants
 	public static final int PAYMENT_STATUS_UNPAID = 1;
 	public static final int PAYMENT_STATUS_PARTIALLY_PAID = 2;
 	public static final int PAYMENT_STATUS_PAID = 3;
@@ -78,6 +76,12 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 
 	@Column(name = "final_amount", nullable = false)
 	private BigDecimal finalAmount;
+	
+	@Transient
+	private BigDecimal paymentAmount;
+
+	@Transient
+	private boolean useUnallocatedCredit;
 	
 	@Column(name = "status", nullable = false)
 	private int status;
@@ -149,7 +153,6 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 	@Transient
 	private boolean isNew = false;
 
-	// Default constructor
 	public Invoice() {
 		super();
 		originalAmount = new BigDecimal(0.000);
@@ -160,25 +163,17 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		totalDiscountAmount = new BigDecimal(0.000);
 		finalAmount = new BigDecimal(0.000);
 		issueDate = new Date();
+		useUnallocatedCredit = false;
 		status = STATUS_OPENED;
 		paymentStatus = PAYMENT_STATUS_UNPAID;
 	}
 
-	// Getters and Setters
 	public UUID getId() {
 		return id;
 	}
 
 	public void setId(UUID id) {
 		this.id = id;
-	}
-
-	public String getInvNumber() {
-		return invNumber;
-	}
-
-	public void setInvNumber(String invNumber) {
-		this.invNumber = invNumber;
 	}
 
 	public Customer getCustomer() {
@@ -201,12 +196,23 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		return issueDate;
 	}
 
+	public String getIssueDateString() {
+		SimpleDateFormat sf = new SimpleDateFormat("dd/MM/yyyy");
+		String issueDateString = sf.format(this.issueDate);
+		return issueDateString;
+	}
+
 	public void setIssueDate(Date issueDate) {
 		this.issueDate = issueDate;
 	}
 
 	public BigDecimal getOriginalAmount() {
 		return originalAmount;
+	}
+
+	public String getOriginalAmountString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.originalAmount);
 	}
 
 	public void setOriginalAmount(BigDecimal originalAmount) {
@@ -225,12 +231,22 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		return invDiscountValue;
 	}
 
+	public String getInvDiscountValueString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.invDiscountValue);
+	}
+
 	public void setInvDiscountValue(BigDecimal invDiscountValue) {
 		this.invDiscountValue = invDiscountValue;
 	}
 
 	public BigDecimal getInvDiscountAmount() {
 		return invDiscountAmount;
+	}
+
+	public String getInvDiscountAmountString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.invDiscountAmount);
 	}
 
 	public void setInvDiscountAmount(BigDecimal invDiscountAmount) {
@@ -241,6 +257,11 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		return totalItemDiscountAmount;
 	}
 
+	public String getTotalItemDiscountAmountString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.totalItemDiscountAmount);
+	}
+
 	public void setTotalItemDiscountAmount(BigDecimal totalItemDiscountAmount) {
 		this.totalItemDiscountAmount = totalItemDiscountAmount;
 	}
@@ -249,12 +270,22 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		return totalDiscountAmount;
 	}
 
+	public String getTotalDiscountAmountString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.totalDiscountAmount);
+	}
+
 	public void setTotalDiscountAmount(BigDecimal totalDiscountAmount) {
 		this.totalDiscountAmount = totalDiscountAmount;
 	}
 
 	public BigDecimal getFinalAmount() {
 		return finalAmount;
+	}
+
+	public String getFinalAmountString() {
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		return df.format(this.finalAmount);
 	}
 
 	public void setFinalAmount(BigDecimal finalAmount) {
@@ -269,14 +300,6 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 		this.status = status;
 	}
 
-	public int getPaymentStatus() {
-		return paymentStatus;
-	}
-
-	public void setPaymentStatus(int paymentStatus) {
-		this.paymentStatus = paymentStatus;
-	}
-
 	public Date getCreateDate() {
 		return createDate;
 	}
@@ -289,7 +312,6 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 	public Date getUpdateDate() {
 		return updateDate;
 	}
-
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
 	}
@@ -305,7 +327,7 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 	public void setInvoiceItems(List<InvoiceItem> invoiceItems) {
 		this.invoiceItems = invoiceItems;
 	}
-
+	
 	public List<InvoiceAmountAllocation> getInvoiceAmountAllocations() {
 		return invoiceAmountAllocations;
 	}
@@ -313,7 +335,40 @@ public class Invoice implements Serializable, Persistable<UUID>, ComparableSyncI
 	public void setInvoiceAmountAllocations(List<InvoiceAmountAllocation> invoiceAmountAllocations) {
 		this.invoiceAmountAllocations = invoiceAmountAllocations;
 	}
+	
+	public BigDecimal getPaymentAmount() {
+		return paymentAmount;
+	}
 
+	public void setPaymentAmount(BigDecimal paymentAmount) {
+		this.paymentAmount = paymentAmount;
+	}
+
+	public String getInvNumber() {
+		return invNumber;
+	}
+
+	public void setInvNumber(String invNumber) {
+		this.invNumber = invNumber;
+	}
+
+
+	public boolean getUseUnallocatedCredit() {
+		return useUnallocatedCredit;
+	}
+
+	public void setUseUnallocatedCredit(boolean useUnallocatedCredit) {
+		this.useUnallocatedCredit = useUnallocatedCredit;
+	}
+
+	public int getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setPaymentStatus(int paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+	
 	@Override
 	public boolean isNew() {
 		return isNew;

@@ -184,7 +184,8 @@ public class SyncQueueItem implements Persistable<UUID> {
     public static final String ENTITY_TYPE_ACCOUNT = "ACCOUNT";
     public static final String ENTITY_TYPE_RECALL = "RECALL";
     public static final String ENTITY_TYPE_CLINIC = "CLINIC";
-    public static final String ENTITY_TYPE_CONFIG_SETTING = "CONFIG_SETTING";
+    public static final String ENTITY_TYPE_CONFIG_ACCOUNT_SETTING = "CONFIG_ACCOUNT_SETTING";
+    public static final String ENTITY_TYPE_CONFIG_CLINIC_SETTING = "CONFIG_CLINIC_SETTING";
     public static final String ENTITY_TYPE_USER = "USER";
     
     // Constants for change types

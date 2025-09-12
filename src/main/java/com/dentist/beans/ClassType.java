@@ -53,6 +53,7 @@ public class ClassType implements Serializable, Persistable<UUID>, ComparableSyn
         super();
     }
 
+    @Override
     public UUID getId() {
         return id;
     }

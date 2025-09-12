@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.dentist.beans.ConfigSetting;
+import com.dentist.beans.ConfigAccountSetting;
 import com.dentist.beans.SyncQueueItem;
 import com.dentist.enums.ChangeType;
-import com.dentist.repository.cloud.CloudConfigSettingRepositoryJPA;
-import com.dentist.repository.local.LocalConfigSettingRepositoryJPA;
+import com.dentist.repository.cloud.CloudConfigAccountSettingsRepositoryJPA;
+import com.dentist.repository.local.LocalConfigAccountSettingsRepositoryJPA;
 import com.dentist.util.SyncUtil;
 
 /**
@@ -29,12 +29,12 @@ import com.dentist.util.SyncUtil;
  * @version 1.0
  */
 @Component
-public class ConfigSettingSyncHelper {
+public class ConfigAccountSettingSyncHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConfigSettingSyncHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigAccountSettingSyncHelper.class);
     
-    private final CloudConfigSettingRepositoryJPA cloudConfigSettingRepository;
-    private final LocalConfigSettingRepositoryJPA localConfigSettingRepository;
+    private final CloudConfigAccountSettingsRepositoryJPA cloudConfigAccountSettingsRepository;
+    private final LocalConfigAccountSettingsRepositoryJPA localConfigAccountSettingsRepository;
     
     @Value("${account.id}")
     private int accountId;
@@ -45,11 +45,11 @@ public class ConfigSettingSyncHelper {
     @Value("${sync.merge.time-threshold-minutes:5}")
     private int mergeTimeThresholdMinutes;
 
-    public ConfigSettingSyncHelper(
-            CloudConfigSettingRepositoryJPA cloudConfigSettingRepository,
-            LocalConfigSettingRepositoryJPA localConfigSettingRepository) {
-        this.cloudConfigSettingRepository = cloudConfigSettingRepository;
-        this.localConfigSettingRepository = localConfigSettingRepository;
+    public ConfigAccountSettingSyncHelper(
+    		CloudConfigAccountSettingsRepositoryJPA cloudConfigAccountSettingsRepository,
+    		LocalConfigAccountSettingsRepositoryJPA localConfigAccountSettingsRepository) {
+        this.cloudConfigAccountSettingsRepository = cloudConfigAccountSettingsRepository;
+        this.localConfigAccountSettingsRepository = localConfigAccountSettingsRepository;
     }
 
     /**
@@ -76,21 +76,21 @@ public class ConfigSettingSyncHelper {
     private void syncConfigSettingUpdate(UUID ConfigSettingId, boolean localToCloud) throws Exception {
         if (localToCloud) {
             // Sync from local to cloud
-            Optional<ConfigSetting> localConfigSettingOpt = localConfigSettingRepository.findByIdAndAccountId(ConfigSettingId, accountId);
+            Optional<ConfigAccountSetting> localConfigSettingOpt = localConfigAccountSettingsRepository.findByIdAndAccountId(ConfigSettingId, accountId);
             
             if (localConfigSettingOpt.isPresent()) {
-                ConfigSetting localConfigSetting = localConfigSettingOpt.get();
-                Optional<ConfigSetting> cloudConfigSettingOpt = cloudConfigSettingRepository.findByIdAndAccountId(ConfigSettingId, accountId);
+            	ConfigAccountSetting localConfigSetting = localConfigSettingOpt.get();
+                Optional<ConfigAccountSetting> cloudConfigSettingOpt = cloudConfigAccountSettingsRepository.findByIdAndAccountId(ConfigSettingId, accountId);
                 
                 if (cloudConfigSettingOpt.isPresent()) {
-                    ConfigSetting cloudConfigSetting = cloudConfigSettingOpt.get();
+                    ConfigAccountSetting cloudConfigSetting = cloudConfigSettingOpt.get();
                     
                     // Smart merge: Handle concurrent updates to different fields
-                    ConfigSetting mergedConfigSetting = (ConfigSetting) SyncUtil.performSimpleTimestampMerge(localConfigSetting, cloudConfigSetting, true);
+                    ConfigAccountSetting mergedConfigSetting = (ConfigAccountSetting) SyncUtil.performSimpleTimestampMerge(localConfigSetting, cloudConfigSetting, true);
                     
                     if (mergedConfigSetting != null) {
                         // Changes were merged or local is newer
-                        cloudConfigSettingRepository.save(mergedConfigSetting);
+                        cloudConfigAccountSettingsRepository.save(mergedConfigSetting);
                         logger.info("Updated/merged ConfigSetting {} in cloud", ConfigSettingId);
                     } else {
                         // Cloud is newer, no local-to-cloud sync needed
@@ -99,7 +99,7 @@ public class ConfigSettingSyncHelper {
                 } else {
                     // Cloud ConfigSetting doesn't exist, create it
                     localConfigSetting.setNew(true);
-                    cloudConfigSettingRepository.save(localConfigSetting);
+                    cloudConfigAccountSettingsRepository.save(localConfigSetting);
                     logger.info("Created ConfigSetting {} in cloud (was UPDATE but not found)", ConfigSettingId);
                 }
             } else {
@@ -107,21 +107,21 @@ public class ConfigSettingSyncHelper {
             }
         } else {
             // Sync from cloud to local
-            Optional<ConfigSetting> cloudConfigSettingOpt = cloudConfigSettingRepository.findByIdAndAccountId(ConfigSettingId, accountId);
+            Optional<ConfigAccountSetting> cloudConfigSettingOpt = cloudConfigAccountSettingsRepository.findByIdAndAccountId(ConfigSettingId, accountId);
             
             if (cloudConfigSettingOpt.isPresent()) {
-                ConfigSetting cloudConfigSetting = cloudConfigSettingOpt.get();
-                Optional<ConfigSetting> localConfigSettingOpt = localConfigSettingRepository.findByIdAndAccountId(ConfigSettingId, accountId);
+                ConfigAccountSetting cloudConfigAccountSetting = cloudConfigSettingOpt.get();
+                Optional<ConfigAccountSetting> localConfigSettingOpt = localConfigAccountSettingsRepository.findByIdAndAccountId(ConfigSettingId, accountId);
                 
                 if (localConfigSettingOpt.isPresent()) {
-                    ConfigSetting localConfigSetting = localConfigSettingOpt.get();
+                	ConfigAccountSetting localConfigSetting = localConfigSettingOpt.get();
                     
                     // Smart merge: Handle concurrent updates to different fields
-                    ConfigSetting mergedConfigSetting = (ConfigSetting) SyncUtil.performSimpleTimestampMerge(cloudConfigSetting, localConfigSetting, false);
+                	ConfigAccountSetting mergedConfigSetting = (ConfigAccountSetting) SyncUtil.performSimpleTimestampMerge(cloudConfigAccountSetting, localConfigSetting, false);
                     
                     if (mergedConfigSetting != null) {
                         // Changes were merged or cloud is newer
-                        localConfigSettingRepository.save(mergedConfigSetting);
+                    	localConfigAccountSettingsRepository.save(mergedConfigSetting);
                         logger.info("Updated/merged ConfigSetting {} in local from cloud", ConfigSettingId);
                     } else {
                         // Local is newer, no cloud-to-local sync needed
@@ -129,8 +129,8 @@ public class ConfigSettingSyncHelper {
                     }
                 } else {
                     // Local ConfigSetting doesn't exist, create it
-                    cloudConfigSetting.setNew(true);
-                    localConfigSettingRepository.save(cloudConfigSetting);
+                    cloudConfigAccountSetting.setNew(true);
+                    localConfigAccountSettingsRepository.save(cloudConfigAccountSetting);
                     logger.info("Created ConfigSetting {} in local from cloud (was UPDATE but not found)", ConfigSettingId);
                 }
             } else {

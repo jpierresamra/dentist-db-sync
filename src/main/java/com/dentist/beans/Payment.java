@@ -105,6 +105,7 @@ public class Payment implements Serializable , Persistable<UUID>, ComparableSync
 		method = METHOD_CASH;
 	}
 
+	@Override
 	public UUID getId() {
 		return id;
 	}

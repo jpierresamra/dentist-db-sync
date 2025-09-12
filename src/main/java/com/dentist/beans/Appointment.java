@@ -26,8 +26,12 @@ public class Appointment implements Serializable, Persistable<UUID>, ComparableS
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int STATUS_CREATED = 1;
+	public static final int STATUS_ACTIVE = 1;
 	public static final int STATUS_DELETED = 2;
+	public static final int STATUS_NO_SHOW = 3;
+	public static final int STATUS_CANCELLED = 4;
+	public static final int STATUS_LATE = 5;
+	public static final int STATUS_ATTENDED = 6;
 
 	@Id
 	@JdbcTypeCode(SqlTypes.VARCHAR)
@@ -55,6 +59,10 @@ public class Appointment implements Serializable, Persistable<UUID>, ComparableS
 	@Column(name = "clinic_id", nullable = false)
 	@JdbcTypeCode(SqlTypes.VARCHAR)
 	private UUID clinicId;
+	
+	@ManyToOne
+	@JoinColumn(name = "doctor_id", referencedColumnName = "id", nullable = false)
+	private User doctor;
 
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
@@ -66,6 +74,7 @@ public class Appointment implements Serializable, Persistable<UUID>, ComparableS
 	private boolean isNew = false;
 
 	// Getters and Setters
+	@Override
 	public UUID getId() {
 		return id;
 	}
@@ -131,6 +140,7 @@ public class Appointment implements Serializable, Persistable<UUID>, ComparableS
 		this.updateDate = updateDate;
 	}
 
+
 	public UUID getClinicId() {
 		return clinicId;
 	}
@@ -147,6 +157,14 @@ public class Appointment implements Serializable, Persistable<UUID>, ComparableS
 		this.accountId = accountId;
 	}
 
+	public User getDoctor() {
+		return doctor;
+	}
+
+	public void setDoctor(User doctor) {
+		this.doctor = doctor;
+	}
+	
 	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}

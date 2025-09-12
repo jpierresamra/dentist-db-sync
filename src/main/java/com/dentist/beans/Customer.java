@@ -87,10 +87,6 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 	@Column(name = "account_id")
 	private int accountId;
 	
-	@ManyToOne
-	@JoinColumn(name = "class_type_id", referencedColumnName = "id", nullable = true)
-	private ClassType classType;
-	
 	@Column(name = "create_date", updatable = false, insertable = true)
 	private Date createDate;
 
@@ -102,6 +98,10 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 	
 	@Column(name = "referral")
 	private String referral;
+	
+	@ManyToOne
+	@JoinColumn(name = "class_type_id", referencedColumnName = "id", nullable = true)
+	private ClassType classType;
 
 	@Transient
 	private boolean isNew = false;
@@ -291,7 +291,7 @@ public class Customer implements Serializable, Persistable<UUID>, ComparableSync
 	public void setReferral(String referral) {
 		this.referral = referral;
 	}
-	
+
 	public ClassType getClassType() {
 		return classType;
 	}
